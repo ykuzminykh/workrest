@@ -1,0 +1,294 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0a63d1">
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<title>Work and Rest Hours</title>
+<style>
+:root{--ink:#14233a;--blue:#0a63d1;--blue2:#0a7cff;--mist:#dde9f8;--paper:#eef2f7;--card:#fff;--line:#c9d6e6;--muted:#5a6f88;
+--reg:#7db9e8;--drill:#f0c20e;--over:#f5a10b;--rest:#e4e7eb;--bad:#c8372b;--ok:#1f8a4c;
+--font:"Avenir Next","Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif}
+*{box-sizing:border-box}
+html,body{margin:0;background:var(--paper);color:var(--ink);font:16px/1.4 var(--font);-webkit-tap-highlight-color:transparent}
+button,input,select,textarea{font:inherit;color:inherit}
+.top{position:sticky;top:0;z-index:5;background:var(--blue2);color:#fff;padding-top:env(safe-area-inset-top)}
+.who{background:rgba(0,0,0,.22);font-size:.7rem;padding:3px 12px;letter-spacing:.03em;text-transform:uppercase}
+.tools{display:flex;align-items:center;gap:6px;padding:8px 10px}
+.tools h1{flex:1;margin:0;font-size:1rem;font-weight:700}
+.ib{border:0;background:rgba(255,255,255,.16);color:#fff;border-radius:10px;min-width:44px;height:44px;display:grid;place-items:center;cursor:pointer;padding:0 10px;font-weight:700;font-size:.85rem}
+.ib:active{background:rgba(255,255,255,.3)}
+.ib svg{width:24px;height:24px;stroke:#fff;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+:focus-visible{outline:3px solid #ffb703;outline-offset:2px}
+main{max-width:560px;margin:0 auto;padding:12px 12px calc(24px + env(safe-area-inset-bottom))}
+.title{color:#1a7fa8;font-weight:600;text-align:center;font-size:.92rem;text-transform:uppercase;margin:6px 0 10px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:14px;margin-bottom:12px}
+.hint{color:var(--muted);font-size:.85rem;margin:0}
+label.f{display:block;font-size:.8rem;color:var(--muted);margin-bottom:3px;text-transform:uppercase}
+input[type=text],input[type=password],select,textarea{width:100%;border:1px solid var(--line);border-radius:8px;padding:10px;background:#fff;min-height:44px}
+textarea{min-height:70px;resize:vertical}
+.btn{border:0;border-radius:10px;padding:12px 16px;background:var(--blue2);color:#fff;font-weight:700;cursor:pointer;min-height:46px;width:100%}
+.btn.light{background:var(--mist);color:var(--blue)}.btn.danger{background:#fde6e3;color:var(--bad)}
+.btn.sm{width:auto;padding:6px 12px;min-height:36px;font-size:.9rem}
+.tbl{width:100%;border-collapse:collapse;text-align:center;font-variant-numeric:tabular-nums}
+.tbl th{background:linear-gradient(#8aa9e0,#6f93d8);color:#fff;font-size:.78rem;padding:7px 2px;border-left:1px solid rgba(255,255,255,.4)}
+.tbl td{padding:11px 2px;border-bottom:1px solid #e3e9f1;font-size:.95rem}
+.tbl tr.day{cursor:pointer}.tbl tr.day:active,.tbl tr.day:hover{background:#eef5ff}
+.tbl tr.off td{color:#9aa8ba;background:#f6f8fa}
+.tbl tr.bad td:first-child{box-shadow:inset 4px 0 var(--over)}
+.tbl tr.sum td{color:var(--blue);font-weight:800;background:#e8eef7}
+.badge{display:inline-block;border-radius:999px;padding:2px 10px;font-size:.78rem;font-weight:700;background:#e1e8f2;color:var(--muted)}
+.badge.ok{background:#dff3e6;color:var(--ok)}
+.chip{background:var(--over);color:#fff;font-weight:700;border-radius:6px;padding:1px 7px;font-size:.85rem;margin-right:4px;display:inline-block}
+.nc{margin:4px 0;font-size:.9rem}
+.modes{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:6px 0 14px}
+.mode{border:3px solid transparent;border-radius:8px;padding:10px 2px;font-weight:700;font-size:.78rem;cursor:pointer;display:flex;gap:4px;align-items:center;justify-content:center;min-height:44px;background:var(--m);color:#1d2b3c}
+.mode[aria-pressed=true]{border-color:#1d2b3c}
+.grid{display:grid;grid-template-columns:repeat(6,1fr);gap:5px;touch-action:none;user-select:none;-webkit-user-select:none}
+.hr{display:grid;grid-template-columns:1fr 1fr;grid-template-rows:auto 38px;gap:2px;font-size:.75rem;text-align:center}
+.hr b{grid-column:1/-1;font-weight:600;color:#3a4b61;text-align:left;font-size:.78rem}
+.hf{background:var(--rest);border-radius:4px;cursor:pointer}
+.hf[data-v=R]{background:var(--reg)}.hf[data-v=D]{background:var(--drill)}.hf[data-v=O]{background:var(--over)}
+.sumrow{display:grid;grid-template-columns:1fr 1.15fr;gap:16px;margin:16px 0}
+.sumrow h4{margin:0 0 4px;border-bottom:3px solid #14233a;display:flex;justify-content:space-between;font-size:.95rem}
+.sumrow div div{display:flex;justify-content:space-between;font-size:.88rem;padding:2px 0;font-variant-numeric:tabular-nums}
+dialog{border:0;border-radius:12px;padding:0;width:min(420px,94vw);max-height:88vh;box-shadow:0 20px 60px rgba(8,20,50,.45)}
+dialog::backdrop{background:rgba(8,20,50,.55)}
+dialog form{display:flex;flex-direction:column;max-height:88vh}
+dialog h3{margin:0;padding:16px 16px 6px;font-size:1.05rem;text-transform:uppercase}
+dialog .body{overflow:auto;padding:6px 16px 12px}
+dialog footer{display:flex;gap:8px;justify-content:flex-end;padding:10px 16px 14px}
+dialog footer button{background:none;border:0;color:var(--blue);font-weight:800;padding:10px 12px;cursor:pointer;text-transform:uppercase;min-height:44px}
+.dgrid{display:grid;grid-template-columns:repeat(6,1fr);gap:6px}
+.dgrid button{border:0;border-radius:6px;background:#80b8e8;padding:10px 0;font-weight:600;cursor:pointer;min-height:40px}
+.dgrid button.off{background:#e7e9ec;color:#8a96a6}.dgrid button.cur{background:#6b7480;color:#fff}
+.row{display:flex;gap:10px;align-items:center;justify-content:space-between;padding:10px 0}
+.empty{text-align:center;color:var(--muted);padding:30px 10px}
+.sigbox{border:1px dashed var(--line);border-radius:10px;padding:8px;text-align:center;background:#fff}.sigbox img{max-height:70px;max-width:100%}
+canvas.pad{width:100%;height:200px;border:1px solid var(--line);border-radius:8px;background:#fafcff;touch-action:none;display:block}
+.toast{position:fixed;left:50%;bottom:calc(20px + env(safe-area-inset-bottom));transform:translateX(-50%);background:var(--ink);color:#fff;padding:10px 16px;border-radius:8px;z-index:30;max-width:90vw;text-align:center}
+.net{font-size:.7rem;background:rgba(255,255,255,.2);border-radius:999px;padding:1px 8px}
+/* printable report */
+#rep{display:none}
+@media print{
+ body>*:not(#rep){display:none!important}
+ #rep{display:block!important;color:#000;background:#fff;font-size:10px}
+ #rep h2{margin:0 0 4px;font-size:15px}
+ #rep .head{display:flex;justify-content:space-between;gap:10px;margin-bottom:6px;font-size:10px}
+ #rep table{width:100%;border-collapse:collapse;font-size:8.5px}
+ #rep th,#rep td{border:1px solid #888;padding:1px 2px;text-align:center}
+ #rep .bar{display:flex;height:11px}#rep .bar i{flex:1;border-left:1px solid #fff;display:block}
+ #rep .bar i[data-v=R]{background:#7db9e8!important}#rep .bar i[data-v=D]{background:#f0c20e!important}#rep .bar i[data-v=O]{background:#f5a10b!important}#rep .bar i[data-v="."]{background:#e4e7eb!important}
+ #rep *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+ #rep .sig img{height:40px}
+ @page{margin:10mm}
+}
+</style>
+</head>
+<body>
+<div class="top" id="top"></div>
+<main id="app"></main>
+<div id="rep"></div>
+<script>
+"use strict";
+const MONTHS=["JANUARY","FEBRUARY","MARCH","APRIL","MAY","JUNE","JULY","AUGUST","SEPTEMBER","OCTOBER","NOVEMBER","DECEMBER"];
+const MODES=[["R","REGULAR","var(--reg)"],["D","DRILL","var(--drill)"],["O","OVERTIME","var(--over)"],[".","REST","var(--rest)"]];
+const SLOTS=48,EMPTY=".".repeat(SLOTS);
+
+/* ---------- storage (localStorage; data is small) ---------- */
+const load=(k,d)=>{try{return JSON.parse(localStorage.getItem(k))??d}catch(e){return d}};
+const store=(k,v)=>{try{localStorage.setItem(k,JSON.stringify(v));return true}catch(e){toast("Storage is full. Export and clear old timesheets.");return false}};
+let profile=Object.assign({name:"",position:"",user:"",vessel:"",flag:"",imo:"",sig:"",extras:false},load("wrh.profile",{}));
+let sheets=load("wrh.sheets",[]);
+const saveProfile=()=>store("wrh.profile",profile),saveSheets=()=>store("wrh.sheets",sheets);
+
+/* ---------- helpers ---------- */
+const $=s=>document.querySelector(s);
+const esc=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const pad=n=>String(n).padStart(2,"0");
+const dim=(y,m)=>new Date(y,m+1,0).getDate();
+const uid=()=>Date.now().toString(36)+Math.random().toString(36).slice(2,5);
+function toast(m){document.querySelectorAll(".toast").forEach(t=>t.remove());const t=document.createElement("div");t.className="toast";t.setAttribute("role","status");t.textContent=m;document.body.append(t);setTimeout(()=>t.remove(),2800)}
+const hm=min=>`${Math.floor(min/60)}:${min%60}`;            // 6:0 style used in the month table
+const hm2=min=>`${pad(Math.floor(min/60))} : ${pad(min%60)}`; // 06 : 00 style used in the day view
+const IC={
+ gear:'<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>',
+ plus:'<svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>',
+ back:'<svg viewBox="0 0 24 24"><path d="M9 14L4 9l5-5"/><path d="M4 9h10a6 6 0 0 1 0 12h-3"/></svg>',
+ ok:'<svg viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg>',
+ copy:'<svg viewBox="0 0 24 24"><rect x="8" y="8" width="12" height="13" rx="2"/><path d="M16 8V5a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v11a2 2 0 0 0 2 2h2"/></svg>',
+ send:'<svg viewBox="0 0 24 24"><path d="M12 16V4M7 9l5-5 5 5"/><path d="M5 20h14"/></svg>',
+ user:'<svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>'};
+const ib=(a,icon,label,extra="")=>`<button class="ib" data-a="${a}" aria-label="${label}" title="${label}" ${extra}>${IC[icon]}</button>`;
+
+/* ---------- calculations ---------- */
+const active=(ts,d)=>ts.workdays.includes(d);
+const dayStr=(ts,d)=>(active(ts,d)&&ts.days[d])||EMPTY;
+function dayStats(s){let R=0,D=0,O=0;for(const c of s){if(c==="R")R++;else if(c==="D")D++;else if(c==="O")O++}
+  const m=x=>x*30;return{reg:m(R),drill:m(D),over:m(O),work:m(R+D+O),rest:m(SLOTS-R-D-O)}}
+function check(ts){const n=dim(ts.year,ts.month);let all="";for(let d=1;d<=n;d++)all+=dayStr(ts,d);
+  const N=all.length,pre=[0];for(let i=0;i<N;i++)pre.push(pre[i]+(all[i]==="."?1:0));
+  const lab=(s,len)=>{const a=Math.floor(s/SLOTS)+1,b=Math.floor((s+len-1)/SLOTS)+1;return a===b?`${a}`:`${a}-${b}`};
+  const out={h10:[],h77:[],split:[],long:[]};
+  for(let s=0;s+SLOTS<=N;s++)if(pre[s+SLOTS]-pre[s]<20){const l=lab(s,SLOTS);if(!out.h10.includes(l))out.h10.push(l)}
+  if(profile.extras){
+    for(let s=0;s+336<=N;s+=SLOTS){if(pre[s+336]-pre[s]<154){const l=lab(s,336);if(!out.h77.includes(l))out.h77.push(l)}}
+    for(let d=1;d<=n;d++){const str=dayStr(ts,d);if(/[^.]/.test(str)){const runs=str.split(/[^.]+/).filter(Boolean);
+      if(runs.length>2)out.split.push(d);if(runs.length&&Math.max(...runs.map(r=>r.length))<12)out.long.push(d)}}}
+  return out}
+const hasViol=v=>v.h10.length||v.h77.length||v.split.length||v.long.length;
+const violHTML=v=>{let h="";
+  if(v.h10.length)h+=`<div class="nc">${v.h10.map(x=>`<span class="chip">${x}</span>`).join("")} Total rest period within 24h is less than 10h</div>`;
+  if(v.h77.length)h+=`<div class="nc">${v.h77.map(x=>`<span class="chip">${x}</span>`).join("")} Total rest in a 7-day period is less than 77h</div>`;
+  if(v.split.length)h+=`<div class="nc">${v.split.map(x=>`<span class="chip">${x}</span>`).join("")} Rest is split into more than 2 periods</div>`;
+  if(v.long.length)h+=`<div class="nc">${v.long.map(x=>`<span class="chip">${x}</span>`).join("")} No rest period of at least 6h</div>`;return h};
+
+/* ---------- dialogs ---------- */
+function dlg(html,after,collect){return new Promise(res=>{const d=document.createElement("dialog");d.innerHTML=html;document.body.append(d);d.showModal();if(after)after(d);d.addEventListener("close",()=>{const v=d.returnValue,data=collect?collect(d):null;d.remove();res(collect?{v,data}:v)})})}
+const note=(title,msg,btn="Close")=>dlg(`<form method="dialog"><h3>${title}</h3><div class="body">${msg}</div><footer><button value="ok">${btn}</button></footer></form>`);
+const confirmD=(title,msg,no="Dismiss",yes="Confirm")=>dlg(`<form method="dialog"><h3>${title}</h3><div class="body" style="text-align:center">${msg}</div><footer><button value="no">${no}</button><button value="yes">${yes}</button></footer></form>`).then(v=>v==="yes");
+function daysDialog(ts,title,sub,sel,cur,okLabel,extra="",collect){const n=dim(ts.year,ts.month);
+  return dlg(`<form method="dialog"><h3 style="text-align:center">${title}</h3><div class="body">${sub?`<p class="hint" style="text-align:center;margin-bottom:10px">${sub}</p>`:""}<div class="dgrid" id="dg">${Array.from({length:n},(_,i)=>i+1).map(d=>`<button type="button" data-d="${d}" class="${d===cur?"cur":sel.has(d)?"":"off"}">${d}</button>`).join("")}</div>${extra}</div><footer><button value="no">Cancel</button><button value="yes">${okLabel}</button></footer></form>`,d=>{
+    d.querySelector("#dg").addEventListener("click",e=>{const b=e.target.closest("button[data-d]");if(!b||+b.dataset.d===cur)return;const x=+b.dataset.d;if(sel.has(x))sel.delete(x);else sel.add(x);b.classList.toggle("off",!sel.has(x))})},collect).then(r=>collect?({ok:r.v==="yes",sel,data:r.data}):({ok:r==="yes",sel}))}
+function signPad(){return new Promise(res=>{const d=document.createElement("dialog");
+  d.innerHTML=`<form method="dialog"><h3>Draw your signature</h3><div class="body"><canvas class="pad" id="pad"></canvas></div><footer><button value="cancel">Cancel</button><button type="button" id="clr">Clear</button><button value="ok">Save</button></footer></form>`;
+  document.body.append(d);d.showModal();const c=d.querySelector("#pad"),x=c.getContext("2d"),k=devicePixelRatio||1;
+  c.width=c.clientWidth*k;c.height=c.clientHeight*k;x.scale(k,k);x.lineWidth=2.4;x.lineCap="round";x.lineJoin="round";x.strokeStyle="#c8372b";
+  let down=false,drew=false;const pt=e=>{const b=c.getBoundingClientRect();return[e.clientX-b.left,e.clientY-b.top]};
+  c.onpointerdown=e=>{down=true;drew=true;c.setPointerCapture(e.pointerId);const[a,b]=pt(e);x.beginPath();x.moveTo(a,b);x.lineTo(a+.1,b+.1);x.stroke()};
+  c.onpointermove=e=>{if(!down)return;const[a,b]=pt(e);x.lineTo(a,b);x.stroke()};c.onpointerup=()=>down=false;
+  d.querySelector("#clr").onclick=()=>{x.clearRect(0,0,c.width,c.height);drew=false};
+  d.addEventListener("close",()=>{const out=d.returnValue==="ok"&&drew?c.toDataURL("image/png"):null;d.remove();res(out)})})}
+
+/* ---------- routing ---------- */
+let cur=null,dayBuf="",dayNo=0,mode="R",dirty=false,dayComment="";
+addEventListener("hashchange",route);
+const go=h=>location.hash=h?"#/"+h:"#/";
+function route(){const[,p,id,d]=location.hash.split("/");
+  if(p==="profile")return profileView();
+  const ts=sheets.find(s=>s.id===id);
+  if(p==="ts"&&ts){cur=ts;if(d)return dayView(+d);return sheetView()}
+  cur=null;return listView()}
+function setTop(title,btns){$("#top").innerHTML=`<div class="who">${esc(profile.name||"You are not logged in")} | ${esc(profile.vessel||"No vessel selected")} <span class="net" id="net"></span></div><div class="tools"><h1>${title}</h1>${btns}</div>`;net()}
+function net(){const n=$("#net");if(n)n.textContent=navigator.onLine?"online":"offline"}
+addEventListener("online",net);addEventListener("offline",net);
+
+/* ---------- list ---------- */
+function listView(){setTop("Work &amp; Rest",ib("profile","user","Options")+ib("new","plus","New timesheet"));
+  const sorted=[...sheets].sort((a,b)=>(b.year*12+b.month)-(a.year*12+a.month));
+  $("#app").innerHTML=`<div class="title">Work &amp; rest hours records</div>${sorted.length?`<div class="card" style="padding:0;overflow:hidden"><table class="tbl"><thead><tr><th>PERIOD</th><th>WATCHKEEPER</th><th>STATUS</th></tr></thead><tbody>${sorted.map(s=>`<tr class="day" data-a="open" data-id="${s.id}" tabindex="0"><td>${MONTHS[s.month]} ${s.year}</td><td>${s.watch?"✔":"–"}</td><td><span class="badge ${s.status==="Completed"?"ok":""}">${s.status.toUpperCase()}</span></td></tr>`).join("")}</tbody></table></div>`
+   :`<div class="empty card"><strong>No timesheets yet</strong><br>Tap + to create one for a month. Everything is stored on this device and works offline.</div>`}
+   <p class="hint" id="inst" style="display:${deferred?"block":"none"};text-align:center"><button class="btn light sm" data-a="install">Install app on this device</button></p>`}
+const mkSheet=(month,year,watch)=>({id:uid(),month,year,watch,workdays:Array.from({length:dim(year,month)},(_,i)=>i+1),days:{},comment:"",dayNotes:{},status:"Draft",updated:Date.now()});
+
+/* ---------- monthly sheet ---------- */
+function sheetView(){const ts=cur,n=dim(ts.year,ts.month);
+  setTop("Timesheet",ib("tsopt","gear","Timesheet options")+ib("send","send","Send timesheet")+ib("home","back","Back")+ib("complete","ok","Save and complete"));
+  let tR=0,tD=0,tO=0,tRest=0;const v=check(ts),bad=new Set();[...v.h10,...v.h77].forEach(l=>l.split("-").forEach(x=>bad.add(+x)));
+  const rows=Array.from({length:n},(_,i)=>{const d=i+1,st=dayStats(dayStr(ts,d));if(active(ts,d)){tR+=st.reg;tD+=st.drill;tO+=st.over}tRest+=st.rest;
+    return`<tr class="day ${active(ts,d)?"":"off"} ${bad.has(d)?"bad":""}" data-a="day" data-d="${d}" tabindex="0"><td>${d}</td><td>${hm(st.reg)}</td><td>${hm(st.drill)}</td><td>${hm(st.over)}</td><td>${hm(st.rest)}</td></tr>`}).join("");
+  $("#app").innerHTML=`<div class="title">Timesheet by ${MONTHS[ts.month]} ${ts.year} · watchkeeper (${ts.watch?"yes":"no"})</div>
+   <div class="card" style="padding:0;overflow:hidden"><table class="tbl"><thead><tr><th>DAY</th><th>REGULAR</th><th>DRILL</th><th>OVER</th><th>REST</th></tr></thead><tbody>${rows}<tr class="sum"><td>Σ</td><td>${hm(tR)}</td><td>${hm(tD)}</td><td>${hm(tO)}</td><td>${hm(tRest)}</td></tr></tbody></table></div>
+   <div class="card"><label class="f" for="gc">General comment</label><textarea id="gc" placeholder="enter a comment">${esc(ts.comment)}</textarea></div>
+   <div class="card"><label class="f">Non compliances with W&amp;R regulations</label>${hasViol(v)?violHTML(v):`<span class="hint">No non-compliances found</span>`}</div>
+   <p class="hint" style="text-align:center">Tap a day to enter its hours. Status: ${ts.status}</p>`}
+
+/* ---------- day editor ---------- */
+function dayView(d){const ts=cur;dayNo=d;dayBuf=dayStr(ts,d);dayComment=ts.dayNotes[d]||"";mode="R";dirty=false;
+  if(!active(ts,d)){toast("This day is excluded in the timesheet options");return go("ts/"+ts.id)}
+  setTop("Day",ib("copy","copy","Copy to other days")+ib("dback","back","Back")+ib("dsave","ok","Save day"));
+  $("#app").innerHTML=`<div class="title">Work &amp; rest hours for ${d} ${MONTHS[ts.month][0]+MONTHS[ts.month].slice(1).toLowerCase()} ${ts.year}</div>
+   <div class="modes" role="group" aria-label="Paint mode">${MODES.map(([k,l,c])=>`<button class="mode" style="--m:${c}" data-a="mode" data-k="${k}" aria-pressed="${k===mode}">${l}</button>`).join("")}</div>
+   <div class="grid" id="grid">${Array.from({length:24},(_,h)=>`<div class="hr"><b>${pad(h)}</b><div class="hf" data-i="${h*2}" data-v="${dayBuf[h*2]}"></div><div class="hf" data-i="${h*2+1}" data-v="${dayBuf[h*2+1]}"></div></div>`).join("")}</div>
+   <div class="sumrow" id="sum"></div>
+   <label class="f" for="dc">Comment</label><textarea id="dc" placeholder="enter comment">${esc(dayComment)}</textarea>`;
+  updSum();wireGrid();
+  const prev=d>1?dayStats(dayStr(ts,d-1)):null;if(prev&&prev.rest<600&&active(ts,d-1))note("Attention","The rest in previous day is less than 10 hrs")}
+function updSum(){const st=dayStats(dayBuf);$("#sum").innerHTML=`<div><h4><span>REST</span><span>${hm2(st.rest)}</span></h4></div><div><h4><span>WORK</span><span>${hm2(st.work)}</span></h4><div><span>REGULAR</span><span>${hm2(st.reg)}</span></div><div><span>DRILL</span><span>${hm2(st.drill)}</span></div><div><span>OVERTIME</span><span>${hm2(st.over)}</span></div></div>`}
+function wireGrid(){const g=$("#grid");let on=false;
+  const paint=i=>{i=+i;if(dayBuf[i]===mode)return;dayBuf=dayBuf.slice(0,i)+mode+dayBuf.slice(i+1);const c=g.querySelector(`[data-i="${i}"]`);c.dataset.v=mode;dirty=true;updSum()};
+  g.onpointerdown=e=>{const c=e.target.closest("[data-i]");if(!c)return;on=true;g.setPointerCapture(e.pointerId);paint(c.dataset.i)};
+  g.onpointermove=e=>{if(!on)return;const el=document.elementFromPoint(e.clientX,e.clientY),c=el&&el.closest&&el.closest("[data-i]");if(c)paint(c.dataset.i)};
+  g.onpointerup=g.onpointercancel=()=>on=false}
+async function saveDay(){const ts=cur,st=dayStats(dayBuf);
+  if(st.rest<600&&!(await confirmD("Attention !","Total rest hrs per day is less than 10h<br>Do you want to save anyway ?")))return false;
+  ts.days[dayNo]=dayBuf;ts.dayNotes[dayNo]=$("#dc").value.trim();ts.status="Draft";ts.updated=Date.now();saveSheets();dirty=false;return true}
+
+/* ---------- profile / options ---------- */
+function profileView(){setTop("Options",ib("pback","back","Back"));
+  const f=(k,l,t="text")=>`<label class="f" for="p_${k}">${l}</label><input type="${t}" id="p_${k}" data-p="${k}" value="${esc(profile[k])}" autocomplete="off" style="margin-bottom:10px">`;
+  $("#app").innerHTML=`<div class="card"><div class="title" style="margin-top:0">Seafarer</div>${f("name","Full name")}${f("position","Position")}${f("user","User ID (optional)")}
+   <label class="f">Signature</label><div class="sigbox">${profile.sig?`<img src="${profile.sig}" alt="Signature">`:`<span class="hint">No signature yet</span>`}</div><button class="btn light" style="margin-top:8px" data-a="sign">${profile.sig?"Redo signature":"Draw signature"}</button></div>
+   <div class="card"><div class="title" style="margin-top:0">Vessel</div>${f("vessel","Vessel")}${f("flag","Flag")}${f("imo","IMO","text")}</div>
+   <div class="card"><div class="title" style="margin-top:0">Rules</div><label class="row"><span>Also check 77 h rest per 7 days and the "max 2 rest periods, one of 6 h" rule<br><small class="hint">Extra STCW checks, not part of the original app. The 10 h per 24 h check is always on.</small></span><input type="checkbox" data-p="extras" ${profile.extras?"checked":""} style="width:26px;height:26px;flex:none"></label></div>
+   <div class="card"><div class="title" style="margin-top:0">Data</div><button class="btn light" data-a="export">Export backup</button><label class="btn light" style="display:block;margin-top:8px;text-align:center;cursor:pointer">Import backup<input type="file" id="im" accept=".json" hidden></label></div>`;
+  $("#im").onchange=async e=>{try{const o=JSON.parse(await e.target.files[0].text());(o.sheets||[]).forEach(s=>{if(!sheets.some(x=>x.id===s.id))sheets.push(s)});saveSheets();toast("Backup imported")}catch(x){toast("That file isn't a valid backup")}}}
+
+/* ---------- print / PDF ---------- */
+function printSheet(ts){const n=dim(ts.year,ts.month),v=check(ts);let tR=0,tD=0,tO=0,tRest=0;
+  const rows=Array.from({length:n},(_,i)=>{const d=i+1,s=dayStr(ts,d),st=dayStats(s);tR+=st.reg;tD+=st.drill;tO+=st.over;tRest+=st.rest;
+    return`<tr><td>${d}</td><td style="width:62%"><div class="bar">${[...s].map(c=>`<i data-v="${c}"></i>`).join("")}</div></td><td>${hm(st.reg)}</td><td>${hm(st.drill)}</td><td>${hm(st.over)}</td><td>${hm(st.rest)}</td><td style="text-align:left">${esc(ts.dayNotes[d]||"")}</td></tr>`}).join("");
+  $("#rep").innerHTML=`<h2>Record of hours of work or rest – ${MONTHS[ts.month]} ${ts.year}</h2>
+   <div class="head"><div>Vessel: <b>${esc(profile.vessel)}</b> · Flag: <b>${esc(profile.flag)}</b> · IMO: <b>${esc(profile.imo)}</b></div><div>Name: <b>${esc(profile.name)}</b> · Position: <b>${esc(profile.position)}</b> · Watchkeeper: <b>${ts.watch?"Yes":"No"}</b></div></div>
+   <table><thead><tr><th>Day</th><th>00 ─ 06 ─ 12 ─ 18 ─ 24 (each block = 30 min; blue regular, yellow drill, orange overtime, grey rest)</th><th>Regular</th><th>Drill</th><th>Overtime</th><th>Rest</th><th>Comment</th></tr></thead><tbody>${rows}<tr><th>Σ</th><th></th><th>${hm(tR)}</th><th>${hm(tD)}</th><th>${hm(tO)}</th><th>${hm(tRest)}</th><th></th></tr></tbody></table>
+   <p><b>General comment:</b> ${esc(ts.comment)||"–"}</p><p><b>Non compliances with W&amp;R regulations:</b> ${hasViol(v)?violHTML(v).replace(/class="chip"/g,'style="background:#f5a10b;color:#fff;padding:0 4px;margin-right:3px"'):"none"}</p>
+   <div class="sig"><p>Signature of seafarer: ${profile.sig?`<img src="${profile.sig}" alt="Signature">`:"________________"}</p></div>`;
+  setTimeout(()=>print(),50)}
+
+/* ---------- events ---------- */
+document.addEventListener("input",e=>{const t=e.target;
+  if(t.dataset.p){profile[t.dataset.p]=t.type==="checkbox"?t.checked:t.value;saveProfile()}
+  else if(t.id==="gc"&&cur){cur.comment=t.value;cur.status="Draft";saveSheets()}
+  else if(t.id==="dc"){dirty=true}});
+document.addEventListener("keydown",e=>{if((e.key==="Enter"||e.key===" ")&&e.target.matches("tr.day")){e.preventDefault();e.target.click()}});
+document.addEventListener("click",async e=>{const b=e.target.closest("[data-a]");if(!b)return;const a=b.dataset.a;
+  switch(a){
+   case"profile":return go("profile");
+   case"pback":return go("");
+   case"home":return go("");
+   case"new":{if(!profile.name){toast("Add your name and vessel in Options first");return go("profile")}
+     const y=new Date().getFullYear(),now=new Date().getMonth();
+     const r=await dlg(`<form method="dialog"><h3>New timesheet</h3><div class="body"><label class="f" for="nm">Month</label><select id="nm">${MONTHS.map((m,i)=>`<option value="${i}" ${i===now?"selected":""}>${m}</option>`).join("")}</select><label class="f" for="ny" style="margin-top:10px">Year</label><select id="ny">${[y-2,y-1,y,y+1].map(v=>`<option ${v===y?"selected":""}>${v}</option>`).join("")}</select><label class="row"><span>WATCHKEEPER</span><input type="checkbox" id="nw" style="width:26px;height:26px"></label></div><footer><button value="no">Cancel</button><button value="yes">Save</button></footer></form>`,null,d=>({m:+d.querySelector("#nm").value,y:+d.querySelector("#ny").value,w:d.querySelector("#nw").checked}));
+     if(r.v!=="yes")return;const nt=r.data;
+     const ex=sheets.find(s=>s.month===nt.m&&s.year===nt.y);if(ex){toast("That month already exists");return go("ts/"+ex.id)}
+     const ts=mkSheet(nt.m,nt.y,nt.w);sheets.push(ts);saveSheets();return go("ts/"+ts.id)}
+   case"open":return go("ts/"+b.dataset.id);
+   case"day":return go(`ts/${cur.id}/${b.dataset.d}`);
+   case"mode":mode=b.dataset.k;document.querySelectorAll(".mode").forEach(m=>m.setAttribute("aria-pressed",m.dataset.k===mode));return;
+   case"dsave":if(await saveDay()){toast("Day saved");go("ts/"+cur.id)}return;
+   case"dback":if(dirty&&!(await confirmD("Discard changes?","This day has unsaved changes.","Keep editing","Discard")))return;return go("ts/"+cur.id);
+   case"copy":{const n=dim(cur.year,cur.month),sel=new Set(Array.from({length:n},(_,i)=>i+1).filter(x=>x!==dayNo&&active(cur,x)));
+     const r=await daysDialog(cur,"Copy timesheet to selected days","deselect those days to which the report does not need to be copied",sel,dayNo,"Copy");
+     if(r.ok){if(!(dayStats(dayBuf).rest>=600)&&!(await confirmD("Attention !","Total rest hrs per day is less than 10h<br>Copy anyway ?")))return;
+       r.sel.forEach(x=>{cur.days[x]=dayBuf;cur.dayNotes[x]=$("#dc").value.trim()});cur.days[dayNo]=dayBuf;cur.status="Draft";saveSheets();dirty=false;toast(`Copied to ${r.sel.size} day(s)`);go("ts/"+cur.id)}return}
+   case"complete":{const v=check(cur);if(hasViol(v))await note('<span style="color:var(--bad)">Minimum rest hrs regulations are violated in the following 24hrs periods</span>',violHTML(v));
+     cur.status="Completed";cur.updated=Date.now();saveSheets();toast("Timesheet saved and completed");return sheetView()}
+   case"tsopt":{const sel=new Set(cur.workdays);
+     const r=await daysDialog(cur,"Timesheet options","Work days",sel,-1,"OK",`<div class="row"><span>WATCHKEEPER</span><input type="checkbox" id="ow" ${cur.watch?"checked":""} style="width:26px;height:26px"></div><div class="row"><span>DELETE TIMESHEET</span><button type="button" class="btn danger sm" id="odel">Delete</button></div><div class="row"><span>CREATE PDF</span><button type="button" class="btn light sm" id="opdf">Create PDF</button></div>`,d=>d.querySelector("#ow").checked);
+     if(r.ok){cur.workdays=[...r.sel].sort((a,b)=>a-b);cur.watch=r.data;cur.status="Draft";cur.updated=Date.now();saveSheets();sheetView()}return}
+   case"send":{const blob=new File([JSON.stringify({profile:{...profile,sig:""},sheet:cur})],`work-rest-${MONTHS[cur.month]}-${cur.year}.json`,{type:"application/json"});
+     if(navigator.canShare&&navigator.canShare({files:[blob]}))try{await navigator.share({files:[blob],title:"Work and rest hours "+MONTHS[cur.month]+" "+cur.year})}catch(x){}
+     else{const l=document.createElement("a");l.href=URL.createObjectURL(blob);l.download=blob.name;l.click();toast("Timesheet file downloaded")}return}
+   case"sign":{const img=await signPad();if(img){profile.sig=img;saveProfile();profileView()}return}
+   case"export":{const l=document.createElement("a");l.href=URL.createObjectURL(new Blob([JSON.stringify({profile,sheets})],{type:"application/json"}));l.download=`work-rest-backup-${new Date().toISOString().slice(0,10)}.json`;l.click();return}
+   case"install":if(deferred){deferred.prompt();deferred=null}return}});
+
+/* timesheet-options dialog actions (rendered inside the dialog, so handled on the document) */
+document.addEventListener("click",async e=>{const t=e.target;if(!t.closest("dialog"))return;
+  if(t.id==="odel"){if(await confirmD("Delete timesheet","Delete this whole timesheet? This can't be undone.","Cancel","Delete")){const id=cur.id;document.querySelectorAll("dialog").forEach(d=>d.close("no"));sheets=sheets.filter(s=>s.id!==id);saveSheets();toast("Timesheet deleted");go("")}}
+  if(t.id==="opdf"){const ts=cur;document.querySelectorAll("dialog").forEach(d=>d.close("no"));printSheet(ts)}});
+
+/* ---------- PWA ---------- */
+let deferred=null;
+addEventListener("beforeinstallprompt",e=>{e.preventDefault();deferred=e;const n=$("#inst");if(n)n.style.display="block"});
+if("serviceWorker"in navigator)addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}));
+if(navigator.storage&&navigator.storage.persist)navigator.storage.persist();
+route();
+</script>
+</body>
+</html>
